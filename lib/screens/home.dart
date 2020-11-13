@@ -34,38 +34,102 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     tabController = TabController(length: 2, vsync: this);
   }
 
-  Future<http.Response> sendData(code, [input]) {
-    return http.post('http://compiler-test.herokuapp.com',
+  Future<http.Response> sendData(code, [input]) async {
+    var response = await http.post('http://192.168.0.126:8080/compiler_win.php',
         body: jsonEncode(<String, String>{'code': code, 'input': input}));
+    return response;
   }
 
   methods(i) {
     if (i + 1 == 1) {
-      codeController.text = codeController.text + '< >';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "< >");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "< >".length,
+          extentOffset: textSelection.start + "< >".length);
+      // codeController.text = codeController.text + '< >';
     }
     if (i + 1 == 2) {
-      codeController.text = codeController.text + '( )';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "( )");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "( )".length,
+          extentOffset: textSelection.start + "( )".length);
+      // codeController.text = codeController.text + '( )';
     }
     if (i + 1 == 3) {
-      codeController.text = codeController.text + '{ }';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "{ }");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "{ }".length,
+          extentOffset: textSelection.start + "{ }".length);
+      // codeController.text = codeController.text + '{ }';
     }
     if (i + 1 == 4) {
-      codeController.text = codeController.text + '[ ]';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "[ ]");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "[ ]".length,
+          extentOffset: textSelection.start + "[ ]".length);
+      // codeController.text = codeController.text + '[ ]';
     }
     if (i + 1 == 5) {
-      codeController.text = codeController.text + '!';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "!");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "!".length,
+          extentOffset: textSelection.start + "!".length);
+      // codeController.text = codeController.text + '!';
     }
     if (i + 1 == 6) {
-      codeController.text = codeController.text + '%';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "%");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "%".length,
+          extentOffset: textSelection.start + "%".length);
+      // codeController.text = codeController.text + '%';
     }
     if (i + 1 == 7) {
-      codeController.text = codeController.text + '&';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "&");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "&".length,
+          extentOffset: textSelection.start + "&".length);
+      // codeController.text = codeController.text + '&';
     }
     if (i + 1 == 8) {
-      codeController.text = codeController.text + '|';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "|");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "|".length,
+          extentOffset: textSelection.start + "|".length);
+      // codeController.text = codeController.text + '|';
     }
     if (i + 1 == 9) {
-      codeController.text = codeController.text + ';';
+      var textSelection = codeController.selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, ";");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + ";".length,
+          extentOffset: textSelection.start + ";".length);
+      // codeController.text = codeController.text + ';';
     }
   }
 
@@ -181,13 +245,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ? print('')
                       : tabController.animateTo((tabController.index + 1) % 2);
                   var response = await sendData(codeController.text, " ");
+                  var response1 = await http
+                      .get('http://192.168.0.126:8080/compiler_win.php');
+                  print(response.body);
                   if (response.statusCode == 200) {
+                    print('in if');
                     var outputObject =
                         OutPutModel.fromJson(json.decode(response.body));
-                    if (outputObject.error.isNotEmpty) {
-                      setState(() {
-                        text = outputObject.error;
-                      });
+                    print(outputObject.output);
+                    if (outputObject.error != null) {
+                      if (outputObject.error.isNotEmpty) {
+                        setState(() {
+                          text = outputObject.error;
+                        });
+                      }
                     }
                     if (outputObject.output.isNotEmpty) {
                       setState(() {
