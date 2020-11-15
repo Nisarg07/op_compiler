@@ -427,69 +427,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ),
               )
             ]),
-      // SingleChildScrollView(
-      //   child: Center(
-      //     child: Container(
-      //       width: MediaQuery.of(context).size.width * .9,
-      //       child: Form(
-      //         child: Column(
-      //           children: [
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             Text('CODE :'),
-      //             SizedBox(
-      //               height: 5,
-      //             ),
-      //             SingleChildScrollView(
-      //               child: Container(
-      //                 color: Colors.black,
-      //                 height: 250,
-      //                 child: TextFormField(
-      //                   controller: codeController,
-      //                   keyboardType: TextInputType.multiline,
-      //                   maxLines: null,
-      //                   decoration: InputDecoration(
-      //                     border: InputBorder.none,
-      //                     // counter: null,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //             SizedBox(
-      //               height: 10,
-      //             ),
-      //             Text('INPUT :'),
-      //             SizedBox(
-      //               height: 5,
-      //             ),
-      //             SingleChildScrollView(
-      //               child: Container(
-      //                 height: 150,
-      //                 child: TextFormField(
-      //                   controller: inputController,
-      //                   keyboardType: TextInputType.multiline,
-      //                   maxLines: null,
-      //                   decoration: InputDecoration(
-      //                     counter: null,
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //             // CodeEditor(
-      //             //   onSubmit: (language, code) {
-      //             //     print(language);
-      //             //     print(code);
-      //             //   },
-      //             //   model: EditorModel(
-      //             //       files: [FileEditor(name: 'a.c', language: 'c')]),
-      //             // )
-      //           ],
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
     ));
   }
 }
