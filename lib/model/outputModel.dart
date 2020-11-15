@@ -3,6 +3,6 @@ class OutPutModel {
   String error;
   OutPutModel({this.output, this.error});
   factory OutPutModel.fromJson(Map<String, dynamic> data) {
-    return OutPutModel(output: data['output'], error: data['error']);
+    return OutPutModel(output: data['Output'], error: data['Error']);
   }
 }

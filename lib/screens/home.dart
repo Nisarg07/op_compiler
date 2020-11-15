@@ -15,6 +15,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final inputController = TextEditingController();
   final codeFocus = FocusNode();
   var numLines = 0;
+  var loading = false;
   TabController tabController;
   var text = "";
   List<String> buttonsList = [
@@ -34,9 +35,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     tabController = TabController(length: 2, vsync: this);
   }
 
-  Future<http.Response> sendData(code, [input]) async {
-    var response = await http.post('http://192.168.0.126:8080/compiler_win.php',
-        body: jsonEncode(<String, String>{'code': code, 'input': input}));
+  Future<http.Response> sendData(code, input) async {
+    var response = await http.post('http://192.168.0.126/compiler_win.php',
+        body: {'code': code, 'input': input});
     return response;
   }
 
@@ -155,24 +156,37 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   child: Text("Done"),
                   onPressed: () async {
                     Navigator.pop(context);
+                    setState(() {
+                      loading = true;
+                    });
+                    var response = await sendData(
+                        codeController.text, inputController.text);
+                    if (response.statusCode == 200) {
+                      // print(response.body);
+                      var outputObject =
+                          OutPutModel.fromJson(json.decode(response.body));
+                      if (outputObject.error != null) {
+                        if (outputObject.error.isNotEmpty) {
+                          setState(() {
+                            text = outputObject.error;
+                          });
+                        }
+                      }
+                      if (outputObject.output != null) {
+                        if (outputObject.output.isNotEmpty) {
+                          setState(() {
+                            text = outputObject.output;
+                          });
+                        }
+                      }
+                    }
+                    setState(() {
+                      loading = false;
+                    });
                     codeController.text.isEmpty
                         ? print('')
                         : tabController
                             .animateTo((tabController.index + 1) % 2);
-                    var response = await sendData(
-                        codeController.text, [inputController.text]);
-                    var outputObject =
-                        OutPutModel.fromJson(json.decode(response.body));
-                    if (outputObject.error.isNotEmpty) {
-                      setState(() {
-                        text = outputObject.error;
-                      });
-                    }
-                    if (outputObject.output.isNotEmpty) {
-                      setState(() {
-                        text = outputObject.output;
-                      });
-                    }
                   },
                 )
               ],
@@ -233,7 +247,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ],
             onSelected: (value) async {
               if (value == 1) {
-                print(codeController.text);
+                // print(codeController.text);
                 codeFocus.unfocus();
                 // await setState(() {
                 //   text = codeController.text;
@@ -241,18 +255,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 if (codeController.text.contains('scanf')) {
                   showInputBox();
                 } else {
-                  codeController.text.isEmpty
-                      ? print('')
-                      : tabController.animateTo((tabController.index + 1) % 2);
+                  setState(() {
+                    loading = true;
+                  });
                   var response = await sendData(codeController.text, " ");
-                  var response1 = await http
-                      .get('http://192.168.0.126:8080/compiler_win.php');
-                  print(response.body);
+                  // var response1 =
+                  //     await http.get('http://192.168.0.126/compiler_win.php');
+                  // print(response.body);
                   if (response.statusCode == 200) {
-                    print('in if');
+                    // print('in if');
                     var outputObject =
                         OutPutModel.fromJson(json.decode(response.body));
-                    print(outputObject.output);
+                    // print(outputObject.output);
                     if (outputObject.error != null) {
                       if (outputObject.error.isNotEmpty) {
                         setState(() {
@@ -260,12 +274,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         });
                       }
                     }
-                    if (outputObject.output.isNotEmpty) {
-                      setState(() {
-                        text = outputObject.output;
-                      });
+                    if (outputObject.output != null) {
+                      if (outputObject.output.isNotEmpty) {
+                        setState(() {
+                          text = outputObject.output;
+                        });
+                      }
                     }
+                    setState(() {
+                      loading = false;
+                    });
                   }
+                  codeController.text.isEmpty
+                      ? print('')
+                      : tabController.animateTo((tabController.index + 1) % 2);
                 }
               }
             },
@@ -280,106 +302,131 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           )
         ]),
       ),
-      body: TabBarView(controller: tabController, children: [
-        Stack(children: [
-          SingleChildScrollView(
-            child: Center(
-              child: Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * .1,
-                    height: MediaQuery.of(context).size.height,
-                    color: Colors.blueGrey,
-                    child: SingleChildScrollView(
-                      child: Center(
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              controller: lineController,
-                              focusNode: AlwaysDisabledFocusNode(),
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
+      body: loading
+          ? Container(
+              height: MediaQuery.of(context).size.height,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : TabBarView(controller: tabController, children: [
+              Stack(children: [
+                SingleChildScrollView(
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * .1,
+                          height: MediaQuery.of(context).size.height,
+                          color: Colors.blueGrey,
+                          child: SingleChildScrollView(
+                            child: Center(
+                              child: Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextFormField(
+                                    controller: lineController,
+                                    focusNode: AlwaysDisabledFocusNode(),
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 2,
-                  ),
-                  Container(
-                    child: SingleChildScrollView(
-                      child: Container(
-                        color: Colors.grey,
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width * .89,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            focusNode: codeFocus,
-                            controller: codeController,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            style: TextStyle(color: Colors.black),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              // counter: null,
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Container(
+                          child: SingleChildScrollView(
+                            child: Container(
+                              color: Colors.grey,
+                              height: MediaQuery.of(context).size.height,
+                              width: MediaQuery.of(context).size.width * .89,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  focusNode: codeFocus,
+                                  controller: codeController,
+                                  keyboardType: TextInputType.multiline,
+                                  maxLines: null,
+                                  style: TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    // counter: null,
+                                  ),
+                                  onChanged: (value) {
+                                    var numtemp = numLines;
+                                    setState(() {
+                                      numLines = '\n'
+                                              .allMatches(codeController.text)
+                                              .length +
+                                          1;
+                                      var temp = lineController.text;
+                                      // temp.add(numLines);
+                                      // for (var i = 0; i < temp.length; i++) {
+                                      //   lineController.text = temp[i];
+                                      // }
+                                      if (numLines > numtemp) {
+                                        if (!temp
+                                            .contains(numLines.toString())) {
+                                          lineController.text = '';
+                                          lineController.text =
+                                              temp + numLines.toString() + '\n';
+                                          // print(numLines);
+                                        }
+                                      }
+                                      if (numLines <= numtemp) {
+                                        // print('nothing');
+                                        var a = 0;
+                                      }
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                            onChanged: (value) {
-                              var numtemp = numLines;
-                              setState(() {
-                                numLines = '\n'
-                                        .allMatches(codeController.text)
-                                        .length +
-                                    1;
-                                var temp = lineController.text;
-                                // temp.add(numLines);
-                                // for (var i = 0; i < temp.length; i++) {
-                                //   lineController.text = temp[i];
-                                // }
-                                if (numLines > numtemp) {
-                                  if (!temp.contains(numLines.toString())) {
-                                    lineController.text = '';
-                                    lineController.text =
-                                        temp + numLines.toString() + '\n';
-                                    print(numLines);
-                                  }
-                                }
-                                if (numLines <= numtemp) {
-                                  print('nothing');
-                                }
-                              });
-                            },
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-              bottom: MediaQuery.of(context).viewInsets.top,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 80,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: getButtons(),
                 ),
-              ))
-        ]),
-        Container(
-          child: text.isEmpty ? Text('OUTPUT') : Text(text),
-        )
-      ]),
+                Positioned(
+                    bottom: MediaQuery.of(context).viewInsets.top,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 80,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: getButtons(),
+                      ),
+                    ))
+              ]),
+              Container(
+                child: text.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
+                            'OUTPUT',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          text,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+              )
+            ]),
       // SingleChildScrollView(
       //   child: Center(
       //     child: Container(
