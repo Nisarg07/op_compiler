@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:op_compiler/model/indentCode.dart';
 import 'package:op_compiler/model/outputModel.dart';
 
 class Home extends StatefulWidget {
@@ -36,8 +38,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future<http.Response> sendData(code, input) async {
-    var response = await http.post('http://your website/compiler_win.php',
+    var response = await http.post('http://192.168.0.126/compiler_win.php',
         body: {'code': code, 'input': input});
+    return response;
+  }
+
+  Future<http.Response> indentCode(code) async {
+    var response = await http
+        .post('http://192.168.0.126/beautify.php', body: {'code': code});
     return response;
   }
 
@@ -183,6 +191,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     setState(() {
                       loading = false;
                     });
+                    inputController.text = "";
                     codeController.text.isEmpty
                         ? print('')
                         : tabController
@@ -290,6 +299,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       : tabController.animateTo((tabController.index + 1) % 2);
                 }
               }
+              if (value == 2) {
+                codeFocus.unfocus();
+                // setState(() {
+                //   loading = true;
+                // });
+                var response = await indentCode(codeController.text);
+                print(response.body);
+                if (response.statusCode == 200) {
+                  var indentCode =
+                      IndentCode.fromJson(jsonDecode(response.body));
+                  if (indentCode.code != null) {
+                    if (indentCode.code.isNotEmpty) {
+                      codeController.text = indentCode.code;
+                    }
+                  }
+                  // setState(() {
+                  //   loading = false;
+                  // });
+                }
+              }
             },
           )
         ],
@@ -350,6 +379,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: TextFormField(
+                                  // enableInteractiveSelection: false,
                                   focusNode: codeFocus,
                                   controller: codeController,
                                   keyboardType: TextInputType.multiline,
@@ -360,6 +390,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     // counter: null,
                                   ),
                                   onChanged: (value) {
+                                    // final textSpan =
+                                    //     TextSpan(text: codeController.text);
+                                    // final textPainter =
+                                    //     TextPainter(text: textSpan);
+                                    // List<LineMetrics> lines =
+                                    //     textPainter.computeLineMetrics();
+                                    // print(lines);
+                                    // print(lines.length);
+                                    // var paragraph =
+                                    //     ParagraphBuilder(ParagraphStyle());
+                                    // paragraph.addText(codeController.text);
+                                    // print(paragraph.placeholderCount);
                                     var numtemp = numLines;
                                     setState(() {
                                       numLines = '\n'
@@ -400,7 +442,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     left: 0,
                     right: 0,
                     child: Container(
-                      height: 80,
+                      height: 70,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: getButtons(),
