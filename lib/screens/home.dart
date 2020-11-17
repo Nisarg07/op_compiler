@@ -38,14 +38,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future<http.Response> sendData(code, input) async {
-    var response = await http.post('http://192.168.0.126/compiler_win.php',
+    var response = await http.post('http://your websit/compiler_win.php',
         body: {'code': code, 'input': input});
     return response;
   }
 
   Future<http.Response> indentCode(code) async {
     var response = await http
-        .post('http://192.168.0.126/beautify.php', body: {'code': code});
+        .post('http://your website/beautify.php', body: {'code': code});
     return response;
   }
 
@@ -268,9 +268,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     loading = true;
                   });
                   var response = await sendData(codeController.text, " ");
-                  // var response1 =
-                  //     await http.get('http://192.168.0.126/compiler_win.php');
-                  // print(response.body);
+
                   if (response.statusCode == 200) {
                     // print('in if');
                     var outputObject =
@@ -311,6 +309,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       IndentCode.fromJson(jsonDecode(response.body));
                   if (indentCode.code != null) {
                     if (indentCode.code.isNotEmpty) {
+                      var newCode = indentCode.code.split("\n");
                       codeController.text = indentCode.code;
                     }
                   }
