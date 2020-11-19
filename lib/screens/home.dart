@@ -38,14 +38,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future<http.Response> sendData(code, input) async {
-    var response = await http.post('http://your websit/compiler_win.php',
+    var response = await http.post('http://localhost/compiler_win.php',
         body: {'code': code, 'input': input});
     return response;
   }
 
   Future<http.Response> indentCode(code) async {
-    var response = await http
-        .post('http://your website/beautify.php', body: {'code': code});
+    var response =
+        await http.post('http://localhost/beautify.php', body: {'code': code});
     return response;
   }
 
@@ -274,6 +274,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     var outputObject =
                         OutPutModel.fromJson(json.decode(response.body));
                     // print(outputObject.output);
+
                     if (outputObject.error != null) {
                       if (outputObject.error.isNotEmpty) {
                         setState(() {
@@ -299,9 +300,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               }
               if (value == 2) {
                 codeFocus.unfocus();
-                // setState(() {
-                //   loading = true;
-                // });
+                setState(() {
+                  loading = true;
+                });
                 var response = await indentCode(codeController.text);
                 print(response.body);
                 if (response.statusCode == 200) {
@@ -309,13 +310,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       IndentCode.fromJson(jsonDecode(response.body));
                   if (indentCode.code != null) {
                     if (indentCode.code.isNotEmpty) {
-                      var newCode = indentCode.code.split("\n");
                       codeController.text = indentCode.code;
                     }
                   }
-                  // setState(() {
-                  //   loading = false;
-                  // });
+                  setState(() {
+                    loading = false;
+                  });
                 }
               }
             },
@@ -340,100 +340,99 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           : TabBarView(controller: tabController, children: [
               Stack(children: [
                 SingleChildScrollView(
-                  child: Center(
-                    child: Row(
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * .1,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * .14,
+                        height: MediaQuery.of(context).size.height,
+                        color: Colors.blueGrey,
+                        child: Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              controller: lineController,
+                              focusNode: AlwaysDisabledFocusNode(),
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 2,
+                      ),
+                      Container(
+                        child: Container(
+                          color: Colors.grey,
                           height: MediaQuery.of(context).size.height,
-                          color: Colors.blueGrey,
-                          child: SingleChildScrollView(
-                            child: Center(
-                              child: Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: TextFormField(
-                                    controller: lineController,
-                                    focusNode: AlwaysDisabledFocusNode(),
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                  ),
-                                ),
+                          width: MediaQuery.of(context).size.width * .85,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              // enableInteractiveSelection: false,
+                              focusNode: codeFocus,
+                              controller: codeController,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              style: TextStyle(color: Colors.black),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                // counter: null,
                               ),
+                              onChanged: (value) {
+                                // final textSpan =
+                                //     TextSpan(text: codeController.text);
+                                // final textPainter =
+                                //     TextPainter(text: textSpan);
+                                // List<LineMetrics> lines =
+                                //     textPainter.computeLineMetrics();
+                                // print(lines);
+                                // print(lines.length);
+                                // var paragraph =
+                                //     ParagraphBuilder(ParagraphStyle());
+                                // paragraph.addText(codeController.text);
+                                // print(paragraph.placeholderCount);
+                                var numtemp = numLines;
+                                setState(() {
+                                  numLines = '\n'
+                                          .allMatches(codeController.text)
+                                          .length +
+                                      1;
+                                  var temp = lineController.text;
+                                  // temp.add(numLines);
+                                  // for (var i = 0; i < temp.length; i++) {
+                                  //   lineController.text = temp[i];
+                                  // }
+                                  if (numLines > numtemp) {
+                                    if (!temp.contains(numLines.toString())) {
+                                      if (temp == '1') {
+                                        lineController.text = '';
+                                        lineController.text = temp +
+                                            '\n' +
+                                            numLines.toString() +
+                                            '\n';
+                                      } else {
+                                        lineController.text = '';
+                                        lineController.text =
+                                            temp + numLines.toString() + '\n';
+                                      }
+                                      // print(numLines);
+                                    }
+                                  }
+                                  if (numLines <= numtemp) {
+                                    // print('nothing');
+                                    var a = 0;
+                                  }
+                                });
+                              },
                             ),
                           ),
                         ),
-                        SizedBox(
-                          width: 2,
-                        ),
-                        Container(
-                          child: SingleChildScrollView(
-                            child: Container(
-                              color: Colors.grey,
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width * .89,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TextFormField(
-                                  // enableInteractiveSelection: false,
-                                  focusNode: codeFocus,
-                                  controller: codeController,
-                                  keyboardType: TextInputType.multiline,
-                                  maxLines: null,
-                                  style: TextStyle(color: Colors.black),
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    // counter: null,
-                                  ),
-                                  onChanged: (value) {
-                                    // final textSpan =
-                                    //     TextSpan(text: codeController.text);
-                                    // final textPainter =
-                                    //     TextPainter(text: textSpan);
-                                    // List<LineMetrics> lines =
-                                    //     textPainter.computeLineMetrics();
-                                    // print(lines);
-                                    // print(lines.length);
-                                    // var paragraph =
-                                    //     ParagraphBuilder(ParagraphStyle());
-                                    // paragraph.addText(codeController.text);
-                                    // print(paragraph.placeholderCount);
-                                    var numtemp = numLines;
-                                    setState(() {
-                                      numLines = '\n'
-                                              .allMatches(codeController.text)
-                                              .length +
-                                          1;
-                                      var temp = lineController.text;
-                                      // temp.add(numLines);
-                                      // for (var i = 0; i < temp.length; i++) {
-                                      //   lineController.text = temp[i];
-                                      // }
-                                      if (numLines > numtemp) {
-                                        if (!temp
-                                            .contains(numLines.toString())) {
-                                          lineController.text = '';
-                                          lineController.text =
-                                              temp + numLines.toString() + '\n';
-                                          // print(numLines);
-                                        }
-                                      }
-                                      if (numLines <= numtemp) {
-                                        // print('nothing');
-                                        var a = 0;
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 Positioned(
