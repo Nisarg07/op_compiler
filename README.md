@@ -5,6 +5,8 @@ This is a C language Compiler made in Flutter as front-end and php as back-end.
 (Note: If you are using windows for testing purpose host compiler_win.php on server and download xampp and vim editor.
 	   If you are using linux for testing purpose host compiler.php on server.)
 
+Just change url of sendData() and indentData() functions in lib/screens/home.dart when server is ready.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
