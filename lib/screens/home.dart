@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:op_compiler/model/indentCode.dart';
 import 'package:op_compiler/model/outputModel.dart';
@@ -253,6 +256,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 child: Text('BEAUTIFY'),
                 value: 2,
               ),
+              PopupMenuItem(
+                child: Text("IMPORT FILE"),
+                value: 3,
+              ),
             ],
             onSelected: (value) async {
               if (value == 1) {
@@ -318,6 +325,27 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   });
                 }
               }
+              if (value == 3) {
+                String textFile;
+                try {
+                  var pickFile = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['c'],
+                      allowCompression: true);
+                  if (pickFile != null) {
+                    File readFile = File(pickFile.files.single.path);
+                    textFile = await readFile.readAsString();
+                    // print(textFile);
+                    // var lnum = textFile.length;
+                    // print(lnum);
+                    // print(lnum / 36);
+                    codeController.text = "";
+                    codeController.text = textFile;
+                  }
+                } catch (e) {
+                  print(e);
+                }
+              }
             },
           )
         ],
@@ -365,69 +393,98 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         width: 2,
                       ),
                       Container(
-                        child: Container(
-                          color: Colors.grey,
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width * .85,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              // enableInteractiveSelection: false,
-                              focusNode: codeFocus,
-                              controller: codeController,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
-                              style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                // counter: null,
-                              ),
-                              onChanged: (value) {
-                                // final textSpan =
-                                //     TextSpan(text: codeController.text);
-                                // final textPainter =
-                                //     TextPainter(text: textSpan);
-                                // List<LineMetrics> lines =
-                                //     textPainter.computeLineMetrics();
-                                // print(lines);
-                                // print(lines.length);
-                                // var paragraph =
-                                //     ParagraphBuilder(ParagraphStyle());
-                                // paragraph.addText(codeController.text);
-                                // print(paragraph.placeholderCount);
-                                var numtemp = numLines;
-                                setState(() {
-                                  numLines = '\n'
-                                          .allMatches(codeController.text)
-                                          .length +
-                                      1;
-                                  var temp = lineController.text;
-                                  // temp.add(numLines);
-                                  // for (var i = 0; i < temp.length; i++) {
-                                  //   lineController.text = temp[i];
-                                  // }
-                                  if (numLines > numtemp) {
-                                    if (!temp.contains(numLines.toString())) {
-                                      if (temp == '1') {
-                                        lineController.text = '';
-                                        lineController.text = temp +
-                                            '\n' +
-                                            numLines.toString() +
-                                            '\n';
-                                      } else {
-                                        lineController.text = '';
-                                        lineController.text =
-                                            temp + numLines.toString() + '\n';
+                        height: MediaQuery.of(context).size.height,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints.expand(width: 307),
+                            child: Container(
+                              child: Container(
+                                color: Colors.grey,
+                                height: MediaQuery.of(context).size.height,
+                                width: MediaQuery.of(context).size.width * .85,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TextFormField(
+                                    // enableInteractiveSelection: false,
+                                    focusNode: codeFocus,
+                                    controller: codeController,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    // maxLength: 36,
+                                    style: TextStyle(color: Colors.black),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      // counter: null,
+                                    ),
+
+                                    onChanged: (value) {
+                                      var newText =
+                                          codeController.text.split('\n');
+                                      print(newText);
+                                      for (var m = 0; m < newText.length; m++) {
+                                        if (newText[m].length > 32) {
+                                          var temp = lineController.text;
+                                          lineController.text = '';
+                                          lineController.text = temp + '\n';
+                                        }
                                       }
-                                      // print(numLines);
-                                    }
-                                  }
-                                  if (numLines <= numtemp) {
-                                    // print('nothing');
-                                    var a = 0;
-                                  }
-                                });
-                              },
+                                      // if (codeController.text.length > 3) {
+                                      //   var temp = codeController.text;
+                                      //   codeController.text = '';
+                                      //   codeController.text = temp + '\n';
+                                      //   // setState(() {
+                                      //   //   codeController.value =
+                                      //   //       TextEditingValue(
+                                      //   //           text: temp + '\n',
+                                      //   //           selection: TextSelection(
+                                      //   //               baseOffset: (temp).length,
+                                      //   //               extentOffset:
+                                      //   //                   (temp).length));
+                                      //   // });
+                                      // }
+                                      var numtemp = numLines;
+                                      setState(() {
+                                        numLines = '\n'
+                                                .allMatches(codeController.text)
+                                                .length +
+                                            1;
+                                        // print(''
+                                        //         .allMatches(codeController.text)
+                                        //         .length -
+                                        //     1);
+                                        var temp = lineController.text;
+                                        // temp.add(numLines);
+                                        // for (var i = 0; i < temp.length; i++) {
+                                        //   lineController.text = temp[i];
+                                        // }
+                                        if (numLines > numtemp) {
+                                          if (!temp
+                                              .contains(numLines.toString())) {
+                                            if (temp == '1') {
+                                              lineController.text = '';
+                                              lineController.text = temp +
+                                                  '\n' +
+                                                  numLines.toString() +
+                                                  '\n';
+                                            } else {
+                                              lineController.text = '';
+                                              lineController.text = temp +
+                                                  numLines.toString() +
+                                                  '\n';
+                                            }
+                                            // print(numLines);
+                                          }
+                                        }
+                                        if (numLines <= numtemp) {
+                                          // print('nothing');
+                                          var a = 0;
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -462,6 +519,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           text,
+                          overflow: TextOverflow.visible,
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
