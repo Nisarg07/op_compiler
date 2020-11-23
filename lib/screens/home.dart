@@ -419,16 +419,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ),
 
                                     onChanged: (value) {
-                                      var newText =
-                                          codeController.text.split('\n');
-                                      print(newText);
-                                      for (var m = 0; m < newText.length; m++) {
-                                        if (newText[m].length > 32) {
-                                          var temp = lineController.text;
-                                          lineController.text = '';
-                                          lineController.text = temp + '\n';
-                                        }
-                                      }
+                                      // var newText =
+                                      //     codeController.text.split('\n');
+                                      // print(newText);
+                                      // for (var m = 0; m < newText.length; m++) {
+                                      //   if (newText[m].length > 32) {
+                                      //     var temp = lineController.text;
+                                      //     lineController.text = '';
+                                      //     lineController.text = temp + '\n';
+                                      //   }
+                                      // }
                                       // if (codeController.text.length > 3) {
                                       //   var temp = codeController.text;
                                       //   codeController.text = '';
