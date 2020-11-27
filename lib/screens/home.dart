@@ -11,10 +11,24 @@ import 'package:op_compiler/model/outputModel.dart';
 
 class Home extends StatefulWidget {
   @override
+  _HomeState1 createState() => _HomeState1();
+}
+
+class _HomeState1 extends State<Home> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Home1(),
+    );
+  }
+}
+
+class Home1 extends StatefulWidget {
+  @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeState extends State<Home1> with SingleTickerProviderStateMixin {
   final codeController = TextEditingController();
   final lineController = TextEditingController();
   final inputController = TextEditingController();
@@ -24,10 +38,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   TabController tabController;
   var text = "";
   List<String> buttonsList = [
+    'TAB',
     '< >',
     '( )',
     '{ }',
     '[ ]',
+    '" "',
+    '#',
     '!',
     '%',
     '&',
@@ -41,60 +58,91 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   Future<http.Response> sendData(code, input) async {
-    var response = await http.post('http://localhost/compiler_win.php',
+    var response = await http.post('http://192.168.0.126/compiler_win.php',
         body: {'code': code, 'input': input});
     return response;
   }
 
   Future<http.Response> indentCode(code) async {
-    var response =
-        await http.post('http://localhost/beautify.php', body: {'code': code});
+    var response = await http
+        .post('http://192.168.0.126/beautify.php', body: {'code': code});
     return response;
   }
 
-  methods(i) {
+  methods(i, selection) {
+    print(i);
     if (i + 1 == 1) {
-      var textSelection = codeController.selection;
+      var textSelection = selection;
       String newText = codeController.text
-          .replaceRange(textSelection.start, textSelection.end, "< >");
+          .replaceRange(textSelection.start, textSelection.end, "\t");
       codeController.text = newText;
       codeController.selection = textSelection.copyWith(
-          baseOffset: textSelection.start + "< >".length,
-          extentOffset: textSelection.start + "< >".length);
+          baseOffset: textSelection.start + "\t".length,
+          extentOffset: textSelection.start + "\t".length);
       // codeController.text = codeController.text + '< >';
     }
     if (i + 1 == 2) {
-      var textSelection = codeController.selection;
+      var textSelection = selection;
       String newText = codeController.text
-          .replaceRange(textSelection.start, textSelection.end, "( )");
+          .replaceRange(textSelection.start, textSelection.end, "<>");
       codeController.text = newText;
       codeController.selection = textSelection.copyWith(
-          baseOffset: textSelection.start + "( )".length,
-          extentOffset: textSelection.start + "( )".length);
-      // codeController.text = codeController.text + '( )';
+          baseOffset: textSelection.start + "<>".length - 1,
+          extentOffset: textSelection.start + "<>".length - 1);
+      // codeController.text = codeController.text + '< >';
     }
     if (i + 1 == 3) {
-      var textSelection = codeController.selection;
+      var textSelection = selection;
       String newText = codeController.text
-          .replaceRange(textSelection.start, textSelection.end, "{ }");
+          .replaceRange(textSelection.start, textSelection.end, "()");
       codeController.text = newText;
       codeController.selection = textSelection.copyWith(
-          baseOffset: textSelection.start + "{ }".length,
-          extentOffset: textSelection.start + "{ }".length);
-      // codeController.text = codeController.text + '{ }';
+          baseOffset: textSelection.start + "()".length - 1,
+          extentOffset: textSelection.start + "()".length - 1);
+      // codeController.text = codeController.text + '( )';
     }
     if (i + 1 == 4) {
-      var textSelection = codeController.selection;
+      var textSelection = selection;
       String newText = codeController.text
-          .replaceRange(textSelection.start, textSelection.end, "[ ]");
+          .replaceRange(textSelection.start, textSelection.end, "{}");
       codeController.text = newText;
       codeController.selection = textSelection.copyWith(
-          baseOffset: textSelection.start + "[ ]".length,
-          extentOffset: textSelection.start + "[ ]".length);
-      // codeController.text = codeController.text + '[ ]';
+          baseOffset: textSelection.start + "{}".length - 1,
+          extentOffset: textSelection.start + "{}".length - 1);
+      // codeController.text = codeController.text + '{ }';
     }
     if (i + 1 == 5) {
-      var textSelection = codeController.selection;
+      var textSelection = selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "[]");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "[]".length - 1,
+          extentOffset: textSelection.start + "[]".length - 1);
+      // codeController.text = codeController.text + '[ ]';
+    }
+    if (i + 1 == 6) {
+      var textSelection = selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, '""');
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + '""'.length - 1,
+          extentOffset: textSelection.start + '""'.length - 1);
+      // codeController.text = codeController.text + '< >';
+    }
+    if (i + 1 == 7) {
+      var textSelection = selection;
+      String newText = codeController.text
+          .replaceRange(textSelection.start, textSelection.end, "#");
+      codeController.text = newText;
+      codeController.selection = textSelection.copyWith(
+          baseOffset: textSelection.start + "#".length,
+          extentOffset: textSelection.start + "#".length);
+      // codeController.text = codeController.text + '< >';
+    }
+    if (i + 1 == 8) {
+      var textSelection = selection;
       String newText = codeController.text
           .replaceRange(textSelection.start, textSelection.end, "!");
       codeController.text = newText;
@@ -103,8 +151,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           extentOffset: textSelection.start + "!".length);
       // codeController.text = codeController.text + '!';
     }
-    if (i + 1 == 6) {
-      var textSelection = codeController.selection;
+    if (i + 1 == 9) {
+      var textSelection = selection;
       String newText = codeController.text
           .replaceRange(textSelection.start, textSelection.end, "%");
       codeController.text = newText;
@@ -113,8 +161,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           extentOffset: textSelection.start + "%".length);
       // codeController.text = codeController.text + '%';
     }
-    if (i + 1 == 7) {
-      var textSelection = codeController.selection;
+    if (i + 1 == 10) {
+      var textSelection = selection;
       String newText = codeController.text
           .replaceRange(textSelection.start, textSelection.end, "&");
       codeController.text = newText;
@@ -123,8 +171,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           extentOffset: textSelection.start + "&".length);
       // codeController.text = codeController.text + '&';
     }
-    if (i + 1 == 8) {
-      var textSelection = codeController.selection;
+    if (i + 1 == 11) {
+      var textSelection = selection;
       String newText = codeController.text
           .replaceRange(textSelection.start, textSelection.end, "|");
       codeController.text = newText;
@@ -133,8 +181,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           extentOffset: textSelection.start + "|".length);
       // codeController.text = codeController.text + '|';
     }
-    if (i + 1 == 9) {
-      var textSelection = codeController.selection;
+    if (i + 1 == 12) {
+      var textSelection = selection;
       String newText = codeController.text
           .replaceRange(textSelection.start, textSelection.end, ";");
       codeController.text = newText;
@@ -205,27 +253,32 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ));
   }
 
-  getButtons() {
-    List<Widget> widgets = [];
-    for (var i = 0; i < 9; i++) {
-      widgets.add(Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(),
-            ),
-            FlatButton(
-                onPressed: () {
-                  methods(i);
-                },
-                color: Colors.orange,
-                child: Text(buttonsList[i]))
-          ],
-        ),
-      ));
-    }
-    return widgets;
+  showButtonList(BuildContext context, selection) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+              height: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GridView.builder(
+                    itemCount: buttonsList.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        childAspectRatio: 1.5,
+                        crossAxisSpacing: 9,
+                        mainAxisSpacing: 9),
+                    itemBuilder: (context, index) {
+                      return FlatButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            methods(index, selection);
+                          },
+                          color: Colors.orange,
+                          child: Text(buttonsList[index]));
+                    }),
+              ));
+        });
   }
 
   @override
@@ -335,6 +388,25 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   if (pickFile != null) {
                     File readFile = File(pickFile.files.single.path);
                     textFile = await readFile.readAsString();
+                    var lnum = textFile.split('\n');
+                    var newNum1 = lnum.length;
+                    setState(() {
+                      lineController.text = '1';
+                    });
+                    for (var l = 2; l <= newNum1; l++) {
+                      var temp = lineController.text;
+
+                      if (l == newNum1) {
+                        setState(() {
+                          lineController.text =
+                              temp + '\n' + l.toString() + '\n';
+                        });
+                      } else {
+                        setState(() {
+                          lineController.text = temp + '\n' + l.toString();
+                        });
+                      }
+                    }
                     // print(textFile);
                     // var lnum = textFile.length;
                     // print(lnum);
@@ -368,141 +440,160 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           : TabBarView(controller: tabController, children: [
               Stack(children: [
                 SingleChildScrollView(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * .14,
-                        height: MediaQuery.of(context).size.height,
-                        color: Colors.blueGrey,
-                        child: Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              controller: lineController,
-                              focusNode: AlwaysDisabledFocusNode(),
-                              keyboardType: TextInputType.multiline,
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 2,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints.expand(width: 307),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 3,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * .14,
+                            height: MediaQuery.of(context).size.height,
+                            color: Colors.blueGrey,
                             child: Container(
-                              child: Container(
-                                color: Colors.grey,
-                                height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width * .85,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: TextFormField(
-                                    // enableInteractiveSelection: false,
-                                    focusNode: codeFocus,
-                                    controller: codeController,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                    // maxLength: 36,
-                                    style: TextStyle(color: Colors.black),
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      // counter: null,
-                                    ),
-
-                                    onChanged: (value) {
-                                      // var newText =
-                                      //     codeController.text.split('\n');
-                                      // print(newText);
-                                      // for (var m = 0; m < newText.length; m++) {
-                                      //   if (newText[m].length > 32) {
-                                      //     var temp = lineController.text;
-                                      //     lineController.text = '';
-                                      //     lineController.text = temp + '\n';
-                                      //   }
-                                      // }
-                                      // if (codeController.text.length > 3) {
-                                      //   var temp = codeController.text;
-                                      //   codeController.text = '';
-                                      //   codeController.text = temp + '\n';
-                                      //   // setState(() {
-                                      //   //   codeController.value =
-                                      //   //       TextEditingValue(
-                                      //   //           text: temp + '\n',
-                                      //   //           selection: TextSelection(
-                                      //   //               baseOffset: (temp).length,
-                                      //   //               extentOffset:
-                                      //   //                   (temp).length));
-                                      //   // });
-                                      // }
-                                      var numtemp = numLines;
-                                      setState(() {
-                                        numLines = '\n'
-                                                .allMatches(codeController.text)
-                                                .length +
-                                            1;
-                                        // print(''
-                                        //         .allMatches(codeController.text)
-                                        //         .length -
-                                        //     1);
-                                        var temp = lineController.text;
-                                        // temp.add(numLines);
-                                        // for (var i = 0; i < temp.length; i++) {
-                                        //   lineController.text = temp[i];
-                                        // }
-                                        if (numLines > numtemp) {
-                                          if (!temp
-                                              .contains(numLines.toString())) {
-                                            if (temp == '1') {
-                                              lineController.text = '';
-                                              lineController.text = temp +
-                                                  '\n' +
-                                                  numLines.toString() +
-                                                  '\n';
-                                            } else {
-                                              lineController.text = '';
-                                              lineController.text = temp +
-                                                  numLines.toString() +
-                                                  '\n';
-                                            }
-                                            // print(numLines);
-                                          }
-                                        }
-                                        if (numLines <= numtemp) {
-                                          // print('nothing');
-                                          var a = 0;
-                                        }
-                                      });
-                                    },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  controller: lineController,
+                                  focusNode: AlwaysDisabledFocusNode(),
+                                  keyboardType: TextInputType.multiline,
+                                  maxLines: null,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                          SizedBox(
+                            width: 2,
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onLongPressEnd: (details) {
+                                showMenu(
+                                    color: Colors.blue,
+                                    context: context,
+                                    position: RelativeRect.fromLTRB(
+                                        65.0, 40.0, 0.0, 0.0),
+                                    items: [
+                                      PopupMenuItem(
+                                          child: Text("Can't Paste the Code!"))
+                                    ]);
+                              },
+                              child: Container(
+                                height: MediaQuery.of(context).size.height,
+                                child: ConstrainedBox(
+                                  constraints:
+                                      BoxConstraints.expand(width: 307),
+                                  child: Container(
+                                    color: Colors.grey,
+                                    height: MediaQuery.of(context).size.height,
+                                    // width: MediaQuery.of(context).size.width *
+                                    // .85,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: TextFormField(
+                                        // enableInteractiveSelection: false,
+                                        focusNode: codeFocus,
+                                        controller: codeController,
+                                        keyboardType: TextInputType.multiline,
+                                        maxLines: null,
+                                        // maxLength: 36,
+                                        style: TextStyle(color: Colors.black),
+                                        decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          // counter: null,
+                                        ),
+
+                                        onChanged: (value) {
+                                          // var newText =
+                                          //     codeController.text.split('\n');
+                                          // print(newText);
+                                          // for (var m = 0; m < newText.length; m++) {
+                                          //   if (newText[m].length > 32) {
+                                          //     var temp = lineController.text;
+                                          //     lineController.text = '';
+                                          //     lineController.text = temp + '\n';
+                                          //   }
+                                          // }
+                                          // if (codeController.text.length > 3) {
+                                          //   var temp = codeController.text;
+                                          //   codeController.text = '';
+                                          //   codeController.text = temp + '\n';
+                                          //   // setState(() {
+                                          //   //   codeController.value =
+                                          //   //       TextEditingValue(
+                                          //   //           text: temp + '\n',
+                                          //   //           selection: TextSelection(
+                                          //   //               baseOffset: (temp).length,
+                                          //   //               extentOffset:
+                                          //   //                   (temp).length));
+                                          //   // });
+                                          // }
+                                          var numtemp = numLines;
+                                          setState(() {
+                                            numLines = '\n'
+                                                    .allMatches(
+                                                        codeController.text)
+                                                    .length +
+                                                1;
+                                            // print(''
+                                            //         .allMatches(codeController.text)
+                                            //         .length -
+                                            //     1);
+                                            var temp = lineController.text;
+                                            // temp.add(numLines);
+                                            // for (var i = 0; i < temp.length; i++) {
+                                            //   lineController.text = temp[i];
+                                            // }
+                                            if (numLines > numtemp) {
+                                              if (!temp.contains(
+                                                  numLines.toString())) {
+                                                if (temp == '1') {
+                                                  lineController.text = '';
+                                                  lineController.text = temp +
+                                                      '\n' +
+                                                      numLines.toString() +
+                                                      '\n';
+                                                } else {
+                                                  lineController.text = '';
+                                                  lineController.text = temp +
+                                                      numLines.toString() +
+                                                      '\n';
+                                                }
+                                                // print(numLines);
+                                              }
+                                            }
+                                            if (numLines <= numtemp) {
+                                              // print('nothing');
+                                              var a = 0;
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-                Positioned(
-                    bottom: MediaQuery.of(context).viewInsets.top,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 70,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: getButtons(),
-                      ),
-                    ))
+                // Positioned(
+                //     bottom: MediaQuery.of(context).viewInsets.top,
+                //     left: 0,
+                //     right: 0,
+                //     child: Container(
+                //       height: 70,
+                //       child: ListView(
+                //         scrollDirection: Axis.horizontal,
+                //         children: getButtons(),
+                //       ),
+                //     ))
               ]),
               Container(
                 child: text.isEmpty
@@ -525,6 +616,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       ),
               )
             ]),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          Icons.add,
+          size: 40,
+        ),
+        onPressed: () {
+          showButtonList(context, codeController.selection);
+        },
+      ),
     ));
   }
 }
