@@ -58,14 +58,14 @@ class _HomeState extends State<Home1> with SingleTickerProviderStateMixin {
   }
 
   Future<http.Response> sendData(code, input) async {
-    var response = await http.post('http://192.168.0.126/compiler_win.php',
+    var response = await http.post('http://localhost/compiler_win.php',
         body: {'code': code, 'input': input});
     return response;
   }
 
   Future<http.Response> indentCode(code) async {
-    var response = await http
-        .post('http://192.168.0.126/beautify.php', body: {'code': code});
+    var response =
+        await http.post('http://localhost/beautify.php', body: {'code': code});
     return response;
   }
 
